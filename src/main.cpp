@@ -46,10 +46,10 @@
     "  FragColor = vec4(1.0f);\n"
     "}\n\0";
 // START OF CAMERA PROTOTYPES
-void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mode );
+/* void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mode );
 void ScrollCallback( GLFWwindow *window, double xOffset, double yOffset );
 void MouseCallback( GLFWwindow *window, double xPos, double yPos );
-void DoMovement( );
+void DoMovement( ); */
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 GLfloat lastX = 800 / 2.0;
@@ -99,14 +99,15 @@ int main(void){
 // WINDOW
     GLFWwindow* window = glfwCreateWindow(800,800,"First", NULL , NULL);
 
+ 
+
+    glfwMakeContextCurrent(window);
+/* 
     glfwSetKeyCallback(window,KeyCallback);
     glfwSetCursorPosCallback(window,MouseCallback);
     glfwSetScrollCallback(window,ScrollCallback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); */
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-
-    glfwMakeContextCurrent(window);
     gladLoadGL();
 
 //BUFFERS
@@ -185,19 +186,16 @@ int main(void){
         glUseProgram(shader);
 
         double crntTime = glfwGetTime();
-        if(crntTime - deltaTime >= 1 / 60)
-        {
+        if(crntTime - deltaTime >= 1 / 60){
             rotation += 0.005f;
             deltaTime = crntTime;
         }
     // VertShader UNIFORMS
-        glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 proj = glm::mat4(1.0f);
         view = camera.GetViewMatrix( );
         proj = glm::perspective(glm::radians(45.0f), (float)(800 / 800), 0.1f , 100.0f);
         int modelLoc = glGetUniformLocation(shader, "model");
-        glUniformMatrix4fv(modelLoc, 1 , GL_FALSE, glm::value_ptr(model));
         int viewLoc = glGetUniformLocation(shader, "view");
         glUniformMatrix4fv(viewLoc, 1 , GL_FALSE, glm::value_ptr(view));
         int projLoc = glGetUniformLocation(shader, "proj");
@@ -209,10 +207,19 @@ int main(void){
         int lightcolors = glGetUniformLocation(shader,"lightcolor");
         glUniform3f(lightcolors, 1.0f, 1.0f, 1.0f);   
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, sizeof(indices),GL_UNSIGNED_INT, 0);
+        for (GLuint i = 0; i < 7; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, CubePositions[i]);
+            GLfloat angle = 20.0f * i;
+            model = glm::rotate(model , angle, glm::vec3(1.0f,0.3f,0.5f));
+            glUniformMatrix4fv(modelLoc, 1 , GL_FALSE, glm::value_ptr(model));
+            glDrawElements(GL_TRIANGLES, sizeof(indices),GL_UNSIGNED_INT, 0);
+        }
+        glBindVertexArray(0);
 
 // LIGHT CUBE
-        glUseProgram(lightshader);
+        /* glUseProgram(lightshader);
     // LIGHT CUBE UNIFORMS
 
         model = glm::mat4(1.0f);
@@ -225,14 +232,17 @@ int main(void){
         int lightproj = glGetUniformLocation(shader, "proj");
         glUniformMatrix4fv(lightproj, 1 , GL_FALSE, glm::value_ptr(proj) );
         glBindVertexArray(L_VAO);
-        glDrawElements(GL_TRIANGLES, sizeof(indices),GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sizeof(indices),GL_UNSIGNED_INT, 0); */
         //Swap BUFFERS
+
         glfwSwapBuffers(window);
         
         //TRACK POLL EVENTS
         glfwPollEvents();
-        DoMovement();
+        //DoMovement();
     }
+    
+
 
 
     // deletion of vertices
